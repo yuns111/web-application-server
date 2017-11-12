@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import model.User;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -35,14 +36,23 @@ public class RequestHandler extends Thread {
 
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             String line = bufferedReader.readLine();
-
-            String[] tokens = line.split(" ");
-            String url = tokens[1];
-            int index = url.indexOf("?");
-
             String requestPath = getUrl(line);
-            Map<String, String> parsedParam = HttpRequestUtils.parseQueryString(line);
 
+            if(line == null) {
+                return;
+            }
+
+            int length = 0;
+            while(!"".equals(line)) {
+                line = bufferedReader.readLine();
+                String contentLength = "Content-Length: ";
+
+                if(line.contains(contentLength)) {
+                    length = Integer.parseInt(line.split(contentLength)[1]);
+                }
+            }
+
+            Map<String, String> parsedParam = HttpRequestUtils.parseQueryString(IOUtils.readData(bufferedReader, length));
             if(parsedParam != null) {
                 String id = parsedParam.get("userId");
                 String password = parsedParam.get("password");
@@ -51,7 +61,7 @@ public class RequestHandler extends Thread {
 
                 User user = new User(id, password, name, email);
 
-                System.out.println(user.toString());
+                log.info(user.toString());
             }
 
             byte[] body =  Files.readAllBytes(new File("./webapp" + requestPath).toPath());
@@ -59,13 +69,6 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
             response200Header(dos, body.length);
             responseBody(dos, body);
-
-            while(!"".equals(line)) {
-                line = bufferedReader.readLine();
-                if(line == null) {
-                    return;
-                }
-            }
 
         } catch (IOException e) {
             log.error(e.getMessage());
