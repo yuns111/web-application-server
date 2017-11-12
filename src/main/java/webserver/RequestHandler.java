@@ -1,6 +1,5 @@
 package webserver;
 
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -10,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -91,7 +91,35 @@ public class RequestHandler extends Thread {
                     }
                 }
             }
-            
+
+            if(requestPath.equals("/user/list.html")) {
+                Map<String, String> parsedCookies = HttpRequestUtils.parseCookies(IOUtils.readData(bufferedReader, length));
+
+                if(parsedCookies != null) {
+                    boolean logined = Boolean.parseBoolean(parsedCookies.get("logined"));
+                    if(logined) {
+                        StringBuilder sb = new StringBuilder();
+                        Collection<User> users = DataBase.findAll();
+
+                        for(User user : users) {
+                            sb.append(user.toString() + "\n");
+                        }
+                        // 리스트 추가
+                        byte[] body =  Files.readAllBytes(new File("./webapp" + requestPath).toPath());
+                        DataOutputStream dos = new DataOutputStream(out);
+                        response200Header(dos, body.length);
+                        responseBody(dos, body);
+
+                    } else {
+                        byte[] body =  Files.readAllBytes(new File("./webapp/index.html" ).toPath());
+                        DataOutputStream dos = new DataOutputStream(out);
+                        response302Header(dos, body.length,"/index.html");
+                        responseBody(dos, body);
+                    }
+                }
+
+            }
+
             byte[] body =  Files.readAllBytes(new File("./webapp" + requestPath).toPath());
             DataOutputStream dos = new DataOutputStream(out);
             response200Header(dos, body.length);
