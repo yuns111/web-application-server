@@ -213,11 +213,10 @@ public class RequestHandler extends Thread {
         Map<String, String> parsedCookies = HttpRequestUtils.parseCookies(headerTokens[1].trim());
 
         String loginValue = parsedCookies.get("logined");
-        System.out.println(loginValue);
+
         if(loginValue == null) {
             return false;
         }
-
         return Boolean.parseBoolean(loginValue);
     }
 }
