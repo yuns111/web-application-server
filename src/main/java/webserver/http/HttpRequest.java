@@ -10,6 +10,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import util.HttpRequestUtils;
+import util.IOUtils;
+
 public class HttpRequest {
 	private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
 
@@ -51,6 +54,9 @@ public class HttpRequest {
 		}
 
 		if(requestLine.getMethod() == HttpMethod.POST) {
+			String body = IOUtils.readData(bufferedReader, Integer.parseInt(headers.get("Content-Length")));
+			parameters = HttpRequestUtils.parseQueryString(body);
+		} else {
 			parameters = requestLine.getParameters();
 		}
 	}

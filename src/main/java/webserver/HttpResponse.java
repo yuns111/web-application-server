@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpResponse {
-
 	private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
+
 	private DataOutputStream dos;
 	private Map<String, String> headers;
 
@@ -35,7 +35,7 @@ public class HttpResponse {
 				headers.put("Content-Type", "text/html;charset=utf-8");
 			}
 			headers.put("Content-Length", body.length + "");
-			response200Header(body.length);
+			response200Header();
 			responseBody(body);
 		} catch (IOException e) {
 			log.error(e.getMessage());
@@ -50,7 +50,7 @@ public class HttpResponse {
 		byte[] body = bodyData.getBytes();
 		headers.put("Content-Type", "text/html;charset=utf-8");
 		headers.put("Content-Length", body.length + "");
-		response200Header(body.length);
+		response200Header();
 		responseBody(body);
 	}
 
@@ -65,11 +65,10 @@ public class HttpResponse {
 		}
 	}
 
-	private void response200Header(int lengthOfBodyContent) {
+	private void response200Header() {
 		try {
 			dos.writeBytes("HTTP/1.1 200 OK \r\n");
-			dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-			dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+			addHeaders();
 			dos.writeBytes("\r\n");
 		} catch (IOException e) {
 			log.error(e.getMessage());
