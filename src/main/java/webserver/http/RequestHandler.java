@@ -57,14 +57,13 @@ public class RequestHandler extends Thread {
 				if (user == null || !user.getPassword().equals(password)) {
 					response.forward("/user/login_failed.html");
 					return;
-				} else {
-					response.addHeader("set-Cookie", "logined=true");
-					response.sendRedirect("/index.html");
-					return;
 				}
+				response.addHeader("set-Cookie", "logined=true");
+				response.sendRedirect("/index.html");
+				return;
 			}
 
-			if (requestPath.equals("/user/list.html")) {
+			if (requestPath.equals("/user/list")) {
 				if (!isLogin(request.getHeader("Cookie"))) {
 					response.sendRedirect("/user/login.html");
 					return;
@@ -72,7 +71,7 @@ public class RequestHandler extends Thread {
 				Collection<User> users = DataBase.findAll();
 
 				String userListHtml = makeUserListHtml(users);
-				response.responseBody(userListHtml);
+				response.forwardBody(userListHtml);
 				return;
 			}
 

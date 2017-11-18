@@ -20,13 +20,13 @@ public class HttpResponse {
 
 	public HttpResponse(OutputStream outputStream) {
 		dos = new DataOutputStream(outputStream);
-		headers = new HashMap<String, String>();
+		headers = new HashMap<>();
 
 	}
 
 	public void forward(String url) {
 		try {
-			byte[] body = Files.readAllBytes(Paths.get("./webapp", url));
+			byte[] body = Files.readAllBytes(Paths.get("./webapp" + url));
 			if (url.endsWith(".css")) {
 				headers.put("Content-Type", "text/css");
 			} else if (url.endsWith(".js")) {
@@ -42,14 +42,16 @@ public class HttpResponse {
 		}
 	}
 
-	public void responseBody(String bodyData) {
-		byte[] body = bodyData.getBytes();
-		response200Header(body.length);
-		responseBody(body);
-	}
-
 	public void addHeader(String key, String value) {
 		headers.put(key, value);
+	}
+
+	public void forwardBody(String bodyData) {
+		byte[] body = bodyData.getBytes();
+		headers.put("Content-Type", "text/html;charset=utf-8");
+		headers.put("Content-Length", body.length + "");
+		response200Header(body.length);
+		responseBody(body);
 	}
 
 	public void sendRedirect(String redirectUrl) {
