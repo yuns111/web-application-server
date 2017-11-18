@@ -34,11 +34,11 @@ public class HttpRequest {
 			if (line == null) {
 				return;
 			}
-
 			String[] tokens = line.split(" ");
-			method = tokens[0];
+			this.method = tokens[0];
+
 			String[] url = tokens[1].split("\\?");
-			path = url[0];
+			this.path = url[0];
 
 			makeHeader(bufferedReader);
 
@@ -47,7 +47,9 @@ public class HttpRequest {
 				makeParameter(queryString);
 			} else {
 				line = bufferedReader.readLine();
-				makeParameter(line);
+				if(line != null) {
+					makeParameter(line);
+				}
 			}
 
 		} catch (IOException e) {
@@ -71,7 +73,6 @@ public class HttpRequest {
 
 	private void makeParameter(String queryString) throws IOException {
 
-		System.out.println(queryString);
 		String[] splitedParams = queryString.split("&");
 		for(String param: splitedParams) {
 
@@ -85,6 +86,7 @@ public class HttpRequest {
 	}
 
 	public String getPath() {
+		System.out.println("path: " + path);
 		return path;
 	}
 
