@@ -1,4 +1,4 @@
-package webserver;
+package webserver.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import db.DataBase;
 import model.User;
 import util.HttpRequestUtils;
+import webserver.HttpResponse;
 
 public class RequestHandler extends Thread {
 	private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -32,10 +33,9 @@ public class RequestHandler extends Thread {
 			HttpRequest request = new HttpRequest(in);
 			HttpResponse response = new HttpResponse(out);
 
-			String requestPath = request.getPath();
+			String requestPath = getDefaultPath(request.getPath());
 
 			if (requestPath.equals("/user/create")) {
-
 				String id = request.getParameter("userId");
 				String password = request.getParameter("password");
 				String name = request.getParameter("name");
@@ -50,7 +50,6 @@ public class RequestHandler extends Thread {
 			}
 
 			if (requestPath.equals("/user/login")) {
-
 				String id = request.getParameter("userId");
 				String password = request.getParameter("password");
 
@@ -76,7 +75,7 @@ public class RequestHandler extends Thread {
 				response.responseBody(userListHtml);
 				return;
 			}
-			
+
 			response.forward(requestPath);
 			return;
 
@@ -109,5 +108,12 @@ public class RequestHandler extends Thread {
 			return false;
 		}
 		return Boolean.parseBoolean(loginValue);
+	}
+
+	private String getDefaultPath(String path) {
+		if (path.equals("/")) {
+			return "/index.html";
+		}
+		return path;
 	}
 }
