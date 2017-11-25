@@ -7,6 +7,7 @@ import db.DataBase;
 import model.User;
 import webserver.HttpResponse;
 import webserver.http.HttpRequest;
+import webserver.http.HttpSession;
 
 public class LoginController extends AbstractController {
 	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
@@ -21,7 +22,9 @@ public class LoginController extends AbstractController {
 			response.forward("/user/login_failed.html");
 			return;
 		}
-		response.addHeader("set-Cookie", "logined=true");
+
+		HttpSession session = request.getSession();
+		session.setAttribute("user", user);
 		response.sendRedirect("/index.html");
 		return;
 	}

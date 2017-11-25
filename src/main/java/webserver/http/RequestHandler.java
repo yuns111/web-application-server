@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import controller.Controller;
+import util.HttpRequestUtils;
 import webserver.HttpResponse;
 import webserver.RequestMapping;
 
@@ -29,6 +32,11 @@ public class RequestHandler extends Thread {
 
 			HttpRequest request = new HttpRequest(in);
 			HttpResponse response = new HttpResponse(out);
+			HttpCookie cookies = request.getCookies();
+
+			if(cookies.getCookie("JSESSIONID") == null) {
+				response.addHeader("Set-Cookie", "JSESSIONID=" + UUID.randomUUID());
+			}
 
 			Controller controller = RequestMapping.getController(request.getPath());
 
@@ -39,10 +47,9 @@ public class RequestHandler extends Thread {
 			}
 
 			controller.service(request, response);
-			return;
 
 		} catch (IOException e) {
-			log.error(e.getMessage());
+			log.error(e.getMessage(), e);
 		}
 	}
 

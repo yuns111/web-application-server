@@ -11,13 +11,14 @@ import model.User;
 import util.HttpRequestUtils;
 import webserver.HttpResponse;
 import webserver.http.HttpRequest;
+import webserver.http.HttpSession;
 
 public class ListUserController extends AbstractController {
 	private static final Logger log = LoggerFactory.getLogger(ListUserController.class);
 
 	@Override
 	public void doGet(HttpRequest request, HttpResponse response) {
-		if (!isLogin(request.getHeader("Cookie"))) {
+		if (!isLogin(request.getSession())) {
 			response.sendRedirect("/user/login.html");
 			return;
 		}
@@ -27,14 +28,13 @@ public class ListUserController extends AbstractController {
 		response.forwardBody(userListHtml);
 	}
 
-	private boolean isLogin(String cookieValue) {
-		Map<String, String> parsedCookies = HttpRequestUtils.parseCookies(cookieValue);
-		String loginValue = parsedCookies.get("logined");
+	private boolean isLogin(HttpSession session) {
+		User user = (User)session.getAttribute("user");
 
-		if (loginValue == null) {
+		if(user == null) {
 			return false;
 		}
-		return Boolean.parseBoolean(loginValue);
+		return true;
 	}
 
 	private String makeUserListHtml(Collection<User> users) {
